@@ -6,6 +6,8 @@ import { NewTodo, Todo } from './models';
 import { API_URL, addTodo, deleteTodo } from './service';
 import { fetcher } from './api';
 
+console.log('SRC/TODO: API_URL', API_URL);
+
 export default function Todo() {
     const [requestError, setRequestError] = useState('');
     const { data, error, isLoading } = useSWR(API_URL, fetcher)
@@ -36,14 +38,17 @@ export default function Todo() {
         }
     }
 
-    if (error && requestError) return <div >failed to load {error ? JSON.stringify(error) : requestError}</div>
-    if (isLoading) return <div >loading...{JSON.stringify(isLoading)}</div>
+    if (error || requestError) return <div >failed to load {error ? JSON.stringify(error) : requestError}</div>
+    if (!error && isLoading) return <div >loading...{JSON.stringify(isLoading)}</div>
 
     return (
         <div >
             <TodoForm onSubmit={handleSubmit} requestError={requestError} />
             <div >
-                <List todos={data} onDelete={handleDelete} />
+                { data!==undefined 
+                    && data.length>0 
+                    && <List todos={data} onDelete={handleDelete} />
+                }
             </div>
         </div>
     )

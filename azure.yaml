@@ -3,25 +3,31 @@
 name: cloud-native-todo
 metadata:
     template: azd-init@1.5.0
-hooks:
-    # To run hook at local terminal, run:
-    # azd hooks run postdeploy --debug
-    postdeploy: 
-        shell: sh
-        run: |
-            pwd
-            echo "***** Root postdeploy"
-            ./scripts/postdeploy.sh "./api-todo-test"  
+ 
 services:
     api-todo:
         project: api-todo
         host: containerapp
         language: js
-        docker:
-            path: Dockerfile
+    client-todo:
+        project: client-todo
+        language: js
+        host: containerapp
+        docker: 
+            # Setting an static tag for the docker image will allow us to re-build it before deploying.
+            # This strategy works around the `azd up` order, where package is called before provision, and the image created by package is used by deploy.
+            ### If the tag is not static, calling package from a hook would produce a new unique image, which would be ignored by deploy.
+            # For static-web-applications, package must happen after provision.  
+            # Reference: engineering PR https://github.com/Azure-Samples/todo-nodejs-mongo-aca/compare/staging...pr/3171#diff-7d76d7533653c23b753fc7ce638cf64bdb5e419927d276af836d3a03fdf1745a      
+            tag: 'cloud-native-todo/${AZURE_ENV_NAME}:azd-deploy'
         hooks:
-            postdeploy: 
-                shell: sh
-                run: |
-                    echo "***** api-todo postdeploy"
-
+            predeploy:
+                # windows is provided but untested - use at your own risk
+                windows:
+                    shell: pwsh
+                    run: |
+                        npm run build:env
+                posix:
+                    shell: sh
+                    run: |
+                        npm run build:env

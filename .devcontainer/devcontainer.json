@@ -4,35 +4,45 @@
 	"name": "Node.js & TypeScript",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-18-bullseye",
-
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
-		"ghcr.io/devcontainers/features/node:1": {
-			"version": "latest"
-		},
+		"ghcr.io/devcontainers/features/node:1": {},
+		"ghcr.io/devcontainers/features/azure-cli:1": {},
 		"ghcr.io/azure/azure-dev/azd:0": {},
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		"ghcr.io/devcontainers/features/powershell:1": {}
 	},
-
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [3000],
-
+	"forwardPorts": [
+		3000,
+		80
+	],
+	// add labels to ports
+	"portsAttributes": {
+		"3000": {
+			"label": "API",
+			"onAutoForward": "notify"
+		},
+		"80": {
+			"label": "CLIENT",
+			"onAutoForward": "notify"
+		}
+	},
 	// Use 'postCreateCommand' to run commands after the container is created but before prebuilds.
 	"onCreateCommand": "bash .devcontainer/on-create-command.sh",
-
 	// Use 'postAttachCommand" to run commands after the user is attached.
 	"postAttachCommand": "bash .devcontainer/post-attach-command.sh",
-    
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {
 			"extensions": [
 				"GitHub.copilot-chat",
-				"ms-playwright.playwright"
+				"ms-playwright.playwright",
+				"ms-azuretools.vscode-bicep",
+				"ms-vscode.powershell"
 			]
 		}
 	},
-
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	"remoteUser": "root"
 }

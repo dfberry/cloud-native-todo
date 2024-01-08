@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  api-todo:
+    build:
+      context: ./api-todo
+    ports:
+      - "3000:3000"
+
+  client-todo:
+    build:
+      context: ./client-todo
+    environment:
+      VITE_API_URL: http://localhost:3000
+    ports:
+      - "80:80"

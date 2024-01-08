@@ -7,19 +7,21 @@ param containerRegistryName string
 param containerAppsEnvironmentName string
 param applicationInsightsName string
 param exists bool
-@secure()
-param appDefinition object
+param corsAcaUrl string
 
-var appSettingsArray = filter(array(appDefinition.settings), i => i.name != '')
-var secrets = map(filter(appSettingsArray, i => i.?secret != null), i => {
-  name: i.name
-  value: i.value
-  secretRef: i.?secretRef ?? take(replace(replace(toLower(i.name), '_', '-'), '.', '-'), 32)
-})
-var env = map(filter(appSettingsArray, i => i.?secret == null), i => {
-  name: i.name
-  value: i.value
-})
+// var appSettingsArray = filter(array(appDefinition.settings), i => i.name != '')
+// var secrets = map(filter(appSettingsArray, i => i.?secret != null), i => {
+//   name: i.name
+//   value: i.value
+//   secretRef: i.?secretRef ?? take(replace(replace(toLower(i.name), '_', '-'), '.', '-'), 32)
+// })
+// var env = map(filter(appSettingsArray, i => i.?secret == null), i => {
+//   name: i.name
+//   value: i.value
+// })
+
+var secrets = []
+var env = []
 
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: identityName
@@ -100,6 +102,10 @@ resource app 'Microsoft.App/containerApps@2023-04-01-preview' = {
             {
               name: 'PORT'
               value: '3000'
+            }
+            {
+              name: 'API_ALLOW_ORIGINS'
+              value: corsAcaUrl
             }
           ],
           env,
